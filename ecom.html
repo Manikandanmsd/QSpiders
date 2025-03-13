@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple E-Commerce</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .product, .cart-item { border: 1px solid #ccc; padding: 10px; margin: 10px; display: inline-block; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Product Listing</h1>
+    <input type="text" id="searchInput" placeholder="Search Product">
+    <button onclick="searchProduct()">Search</button>
+    
+    <div id="productList">
+        <div class="product" data-name="Laptop">
+            <p class="product-name">Laptop</p>
+            <p class="product-price">Rs. 80000</p>
+            <button onclick="addToCart('Laptop', 80000)">Add to Cart</button>
+        </div>
+        <div class="product" data-name="Smartphone">
+            <p class="product-name">Smartphone</p>
+            <p class="product-price">Rs. 50000</p>
+            <button onclick="addToCart('Smartphone', 50000)">Add to Cart</button>
+        </div>
+        <div class="product" data-name="Headphones">
+            <p class="product-name">Headphones</p>
+            <p class="product-price">Rs. 5000</p>
+            <button onclick="addToCart('Headphones', 5000)">Add to Cart</button>
+        </div>
+        <div class="product" data-name="Smartwatch">
+            <p class="product-name">Smartwatch</p>
+            <p class="product-price">Rs. 15000</p>
+            <button onclick="addToCart('Smartwatch', 15000)">Add to Cart</button>
+        </div>
+        <div class="product" data-name="Tablet">
+            <p class="product-name">Tablet</p>
+            <p class="product-price">Rs. 30000</p>
+            <button onclick="addToCart('Tablet', 30000)">Add to Cart</button>
+        </div>
+        <div class="product" data-name="Camera">
+            <p class="product-name">Camera</p>
+            <p class="product-price">Rs. 60000</p>
+            <button onclick="addToCart('Camera', 60000)">Add to Cart</button>
+        </div>
+    </div>
+    
+    <h2>Cart</h2>
+    <div id="cart"></div>
+    <h2 id="cart-total">Grand Total: Rs. 0</h2>
+    <button onclick="checkout()">Checkout</button>
+    
+    <h2>Checkout</h2>
+    <input type="text" id="billingName" placeholder="Enter Name">
+    <input type="text" id="billingAddress" placeholder="Enter Address">
+    <select id="paymentMethod">
+        <option value="Credit Card">Credit Card</option>
+        <option value="UPI">UPI</option>
+        <option value="Net Banking">Net Banking</option>
+    </select>
+    <button onclick="placeOrder()">Place Order</button>
+    <div id="orderSuccess" class="hidden">Order Placed Successfully!</div>
+    
+    <script>
+        function searchProduct() {
+            let searchQuery = document.getElementById("searchInput").value.toLowerCase();
+            let products = document.querySelectorAll(".product");
+            products.forEach(product => {
+                let productName = product.getAttribute("data-name").toLowerCase();
+                product.style.display = productName.includes(searchQuery) ? "inline-block" : "none";
+            });
+        }
+        
+        function addToCart(name, price) {
+            let cart = document.getElementById("cart");
+            let item = document.createElement("div");
+            item.className = "cart-item";
+            item.innerHTML = `<p>${name} - Rs. ${price}</p> Quantity: <input type='number' value='1' min='1' onchange='updateTotal()'> <button onclick="this.parentElement.remove(); updateTotal();">Remove</button>`;
+            cart.appendChild(item);
+            updateTotal();
+        }
+        
+        function updateTotal() {
+            let cartItems = document.querySelectorAll(".cart-item");
+            let total = 0;
+            cartItems.forEach(item => {
+                let priceText = item.innerText.match(/Rs. (\d+)/);
+                let quantity = item.querySelector("input").value;
+                if (priceText) {
+                    total += parseInt(priceText[1]) * parseInt(quantity);
+                }
+            });
+            document.getElementById("cart-total").innerText = `Grand Total: Rs. ${total}`;
+        }
+        
+        function checkout() {
+            if (document.querySelectorAll(".cart-item").length === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+            alert("Proceeding to checkout...");
+        }
+        
+        function placeOrder() {
+            let name = document.getElementById("billingName").value;
+            let address = document.getElementById("billingAddress").value;
+            let paymentMethod = document.getElementById("paymentMethod").value;
+            if (!name || !address) {
+                alert("Please enter billing details");
+                return;
+            }
+            document.getElementById("orderSuccess").classList.remove("hidden");
+            alert("Order Placed Successfully!");
+        }
+    </script>
+</body>
+</html>
