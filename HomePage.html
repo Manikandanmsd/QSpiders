@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .page {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .login-box {
+            border: 2px solid #ccc;
+            padding: 20px;
+            width: 300px;
+            margin: 0 auto;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        button {
+            margin-top: 10px;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="homePage" class="page active">
+        <h1>Welcome to the Portal</h1>
+        <div class="container">
+            <h2>Login</h2>
+            <div class="login-box">
+                <h3>User Login</h3>
+                <input type="text" id="user-username" placeholder="Username"><br><br>
+                <input type="password" id="user-password" placeholder="Password"><br><br>
+                <button onclick="login('user')">Login as User</button>
+            </div>
+            <br>
+            <div class="login-box">
+                <h3>Admin Login</h3>
+                <input type="text" id="admin-username" placeholder="Admin Name"><br><br>
+                <input type="password" id="admin-password" placeholder="Password"><br><br>
+                <button onclick="login('admin')">Login as Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="userDashboard" class="page">
+        <h1>User Dashboard</h1>
+        <button onclick="logout()">Logout</button>
+        <hr>
+        <h2>Search Hotels</h2>
+        <input type="text" id="searchHotel" placeholder="Enter hotel name">
+        <button onclick="searchHotel()">Search</button>
+        <div id="hotelResults"></div>
+        <hr>
+        <h2>Booking Confirmation</h2>
+        <form id="bookingForm" style="display: none;">
+            <input type="text" id="name" placeholder="Name" required><br><br>
+            <input type="email" id="email" placeholder="Email" required><br><br>
+            <input type="text" id="phone" placeholder="Phone" required><br><br>
+            <input type="date" id="date" required><br><br>
+            <input type="number" id="days" placeholder="Number of Days" required><br><br>
+            <button type="button" onclick="confirmBooking()">Confirm Booking</button>
+        </form>
+        <div id="bookingMessage"></div>
+    </div>
+
+    <div id="adminDashboard" class="page">
+        <h1>Admin Dashboard</h1>
+        <button onclick="logout()">Logout</button>
+        <hr>
+        <h2>View All Bookings</h2>
+        <table>
+            <tr>
+                <th>User Name</th>
+                <th>Hotel Name</th>
+                <th>Booking Date</th>
+                <th>Number of Days</th>
+                <th>Status</th>
+            </tr>
+            <tbody id="bookingTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let hotels = [
+            { name: "Saravana Bhavan", location: "Salem", price: 3500 },
+            { name: "Taj Hotel", location: "Chennai", price: 7500 },
+            { name: "Grand Hyatt", location: "Bangalore", price: 6500 },
+            { name: "Le Royal Meridian", location: "Coimbatore", price: 5000 },
+            { name: "ITC Grand Chola", location: "Chennai", price: 8000 },
+            { name: "The Oberoi", location: "Mumbai", price: 10000 }
+        ];
+
+        let bookings = [];
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            if (pageId === "userDashboard") displayHotels(hotels);
+            if (pageId === "adminDashboard") displayBookings();
+        }
+
+        function login(userType) {
+            if (userType === 'user') {
+                showPage("userDashboard");
+            } else if (userType === 'admin') {
+                let username = document.getElementById("admin-username").value;
+                let password = document.getElementById("admin-password").value;
+                if (username === "admin1" && password === "admin@123") {
+                    showPage("adminDashboard");
+                } else {
+                    alert("Invalid Admin Credentials!");
+                }
+            }
+        }
+
+        function logout() {
+            showPage("homePage");
+        }
+
+        function displayHotels(hotelList) {
+            let resultsHtml = hotelList.map(hotel => `
+                <div>
+                    <h3>${hotel.name}</h3>
+                    <p>Location: ${hotel.location}</p>
+                    <p>Price per night: Rs.${hotel.price}</p>
+                    <button onclick="showBookingForm('${hotel.name}')">Book Now</button>
+                </div>
+            `).join('');
+            document.getElementById("hotelResults").innerHTML = resultsHtml;
+        }
+
+        function searchHotel() {
+            let searchQuery = document.getElementById("searchHotel").value.toLowerCase();
+            let results = hotels.filter(hotel => hotel.name.toLowerCase().includes(searchQuery));
+            displayHotels(results);
+        }
+
+        function showBookingForm(hotelName) {
+            document.getElementById("bookingForm").style.display = "block";
+            document.getElementById("bookingForm").dataset.hotel = hotelName;
+        }
+
+        function confirmBooking() {
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let phone = document.getElementById("phone").value;
+            let date = document.getElementById("date").value;
+            let days = document.getElementById("days").value;
+            let hotelName = document.getElementById("bookingForm").dataset.hotel;
+            bookings.push({ name, hotel: hotelName, date, days, status: "Confirmed" });
+            document.getElementById("bookingMessage").innerText = "Booking Successful!";
+            displayBookings();
+        }
+
+        function displayBookings() {
+            document.getElementById("bookingTable").innerHTML = bookings.map(booking => `
+                <tr>
+                    <td>${booking.name}</td>
+                    <td>${booking.hotel}</td>
+                    <td>${booking.date}</td>
+                    <td>${booking.days}</td>
+                    <td>${booking.status}</td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
